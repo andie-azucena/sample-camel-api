@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: employee-sys-api
+  description: This is a system API for the employee DB.
+
+servers:
+  - url: 'http://localhost:9000/api/employee-sys/'
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/coolice07/employee-sys-api/v1.0.0
+
+tags:
+  - name: employee
+    description: The employee resource
+    
+paths:
+  '/employees':
+    get:
+      tags: 
+      - employee
+      summary: Get all employees
+      description: |
+        Retrieves all employee records from the database.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/employeeList'
+        500:
+          $ref: '#/components/responses/500' 
+    
+    post:
+      tags: 
+      - employee
+      summary: Creates an employee record
+      description: Insert an employee to the database.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employeeBody'       
+      responses:
+        201:
+          description: Created
+        500:
+          $ref: '#/components/responses/500'   
+
+  '/employees/{employeeId}':
+    get:
+      tags: 
+      - employee
+      summary: Get an employee record
+      description: Retrieves an employee for the given `employeeId`
+      parameters:
+        - $ref: '#/components/parameters/employeeId'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/employee'
+        404:
+          $ref: '#/components/responses/404'   
+        500:
+          $ref: '#/components/responses/500'
+    patch:
+      tags: 
+      - employee
+      summary: Update an employee record
+      description: Updates an employee for the given `employeeId`
+      parameters:
+        - $ref: '#/components/parameters/employeeId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employeeBody'          
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/employee'
+        404:
+          $ref: '#/components/responses/404'   
+        500:
+          $ref: '#/components/responses/500'
+    delete:
+      tags: 
+      - employee
+      summary: Deletes an employee record
+      description: Deletes an employee for the given `employeeId`
+      parameters:
+        - $ref: '#/components/parameters/employeeId'
+      responses:
+        204:
+          description: No Content
+        404:
+          $ref: '#/components/responses/404'   
+        500:
+          $ref: '#/components/responses/500'
+
+components:
+
+  parameters:
+    employeeId:
+      name: employeeId
+      required: true
+      in: path
+      schema:
+        type: integer
+        example: 1
+  
+  schemas:
+    employeeId:
+      type: object
+      properties:
+        employeeId:
+          type: integer
+          example: 1
+    
+    employee:
+      allOf:
+        - $ref: '#/components/schemas/employeeId'
+        - $ref: '#/components/schemas/employeeBody'
+          
+    employeeBody:
+      type: object
+      properties:
+        employeeName:
+          type: string
+          example: "John Doe"
+        position:
+          type: string
+          example: "Manager"
+        dateHired:
+          type: string
+          format: date
+          example: "2000-01-01"
+    
+    employeeList:
+      type: array
+      items:
+        $ref: '#/components/schemas/employee'
+      example: 
+        - employeeId: 1
+          employeeName: "John Doe"
+          position: "Manager"
+          dateHired: "2000-01-01"
+        - employeeId: 2
+          employeeName: "Jane Doe"
+          position: "Supervisor"
+          dateHired: "2010-01-01"
+          
+    error:
+      type: object
+      description: error object
+      properties:
+        timestamp:
+          type: string
+          example: "2022-02-22T22:22:22.222+00:00"
+        type:
+          type: string
+          example: "type of exception"
+        message:
+          type: string
+          example: "error message"
+  
+  responses:
+    404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'  
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
